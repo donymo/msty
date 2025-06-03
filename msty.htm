@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSTY Position Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .decision-alert {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 3px solid #e5e7eb;
+        }
+        
+        .decision-alert.alert-above {
+            border: 3px solid #10b981 !important;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0) !important;
+        }
+        
+        .decision-alert.alert-below {
+            border: 3px solid #ef4444 !important;
+            background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+        }
+        
+        .decision-alert.alert-caution {
+            border: 3px solid #f59e0b !important;
+            background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+        }
+        
+        .alert-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .decision-alert.alert-above .alert-text { color: #065f46 !important; }
+        .decision-alert.alert-below .alert-text { color: #991b1b !important; }
+        .decision-alert.alert-caution .alert-text { color: #92400e !important; }
+        
+        .alert-description {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .input-section {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        .input-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: white;
+            width: 70%;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .results-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .results-grid {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .result-item {
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid;
+            background: #f8fafc;
+        }
+        
+        .result-item.value { border-left-color: #10b981; }
+        .result-item.gain { border-left-color: #f59e0b; }
+        .result-item.total { border-left-color: #8b5cf6; }
+        
+        .result-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .result-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .decision-alert {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .alert-text {
+                font-size: 1.2rem;
+                margin-bottom: 8px;
+            }
+            
+            .alert-description {
+                font-size: 0.9rem;
+            }
+            
+            .decision-alert div[style*="grid-template-columns"] {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 10px !important;
+                margin: 12px 0 8px 0 !important;
+                padding-top: 12px !important;
+            }
+            
+            .decision-alert div[style*="font-size: 1.2rem"] {
+                font-size: 1rem !important;
+                margin-bottom: 1px !important;
+            }
+            
+            .decision-alert div[style*="font-size: 0.7rem"] {
+                font-size: 0.65rem !important;
+            }
+            
+            .input-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .input-section .input-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                flex-wrap: nowrap !important;
+                gap: 15px !important;
+                width: 100% !important;
+            }
+            
+            .input-section .input-group {
+                width: 100% !important;
+                flex: none !important;
+                display: block !important;
+                margin: 0 !important;
+            }
+            
+            .input-section .input-group input {
+                padding: 15px !important;
+                font-size: 1.1rem !important;
+                border-radius: 8px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                margin: 0 !important;
+                display: block !important;
+            }
+            
+            .input-section .input-group label {
+                font-size: 0.9rem !important;
+                margin-bottom: 8px !important;
+                display: block !important;
+                font-weight: 600 !important;
+                width: 100% !important;
+            }
+            
+            .results-section {
+                margin-bottom: 20px;
+            }
+            
+            .results-header {
+                padding: 15px;
+                font-size: 1.1rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 12px;
+                padding: 20px;
+            }
+            
+            .result-item {
+                padding: 12px;
+            }
+            
+            .result-label {
+                font-size: 0.8rem;
+                margin-bottom: 4px;
+            }
+            
+            .result-value {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 12px;
+                margin: 5px;
+            }
+            
+            .decision-alert {
+                padding: 15px;
+            }
+            
+            .alert-text {
+                font-size: 1.1rem;
+            }
+            
+            .input-section {
+                padding: 15px;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px;
+            }
+            
+            .input-group input {
+                padding: 10px;
+                font-size: 0.95rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .result-item {
+                padding: 10px;
+            }
+            
+            .result-value {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="decision-alert" id="decisionAlert">
+            <div class="alert-text" id="alertText">✅ ABOVE ADJUSTED BASIS</div>
+            <div class="alert-description" id="alertDescription">Your position is performing well above your true cost basis</div>
+            <div style="border-top: 1px solid rgba(0,0,0,0.2); margin: 15px 0 10px 0; padding-top: 15px;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 2px;" id="alertBasis">$19.00</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">Adjusted Cost Basis</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 2px;" id="alertGain">+13.2%</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">Current Gain</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 2px;" id="alertPositionValue">$21,500</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">Current Position Value</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="shares">Shares Owned</label>
+                    <input type="number" id="shares" value="1000" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="invested">Total Invested</label>
+                    <input type="number" id="invested" value="25000" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="dividends">Dividends Received</label>
+                    <input type="number" id="dividends" value="6000" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="currentPrice">Current Stock Price</label>
+                    <input type="number" id="currentPrice" value="21.50" step="0.01">
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div class="results-header">
+                📈 Position Analysis Results
+            </div>
+            <div class="results-grid">
+                <div class="result-item value">
+                    <div class="result-label">Current Position Value</div>
+                    <div class="result-value" id="positionValue">$21,500</div>
+                </div>
+                <div class="result-item gain">
+                    <div class="result-label">Gain from Adjusted Basis</div>
+                    <div class="result-value" id="gainPercent">+13.2%</div>
+                </div>
+                <div class="result-item total">
+                    <div class="result-label">Total Return</div>
+                    <div class="result-value" id="totalReturn">+14.4%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+        
+        function formatCurrencyNoDecimals(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        function formatPercent(percent) {
+            const sign = percent >= 0 ? '+' : '';
+            return sign + percent.toFixed(1) + '%';
+        }
+        
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(num);
+        }
+        
+        function calculatePosition() {
+            console.log('Calculate function called'); // Debug
+            
+            // Get input values
+            const shares = parseFloat(document.getElementById('shares').value) || 0;
+            const invested = parseFloat(document.getElementById('invested').value) || 0;
+            const dividends = parseFloat(document.getElementById('dividends').value) || 0;
+            const currentPrice = parseFloat(document.getElementById('currentPrice').value) || 0;
+            
+            console.log('Values:', {shares, invested, dividends, currentPrice}); // Debug
+            
+            // Calculate metrics
+            const adjustedBasis = (invested - dividends) / shares;
+            const positionValue = shares * currentPrice;
+            const gainFromBasis = ((positionValue - (invested - dividends)) / (invested - dividends)) * 100;
+            const totalReturn = ((positionValue + dividends - invested) / invested) * 100;
+            
+            console.log('Calculations:', {adjustedBasis, positionValue, gainFromBasis, totalReturn}); // Debug
+            
+            // Update alert section stats
+            document.getElementById('alertBasis').textContent = formatCurrency(adjustedBasis);
+            document.getElementById('alertGain').textContent = formatPercent(gainFromBasis);
+            document.getElementById('alertPositionValue').textContent = formatCurrencyNoDecimals(positionValue);
+            
+            // Update results
+            document.getElementById('positionValue').textContent = formatCurrencyNoDecimals(positionValue);
+            document.getElementById('gainPercent').textContent = formatPercent(gainFromBasis);
+            document.getElementById('totalReturn').textContent = formatPercent(totalReturn);
+            
+            // Get the alert elements
+            const alertDiv = document.getElementById('decisionAlert');
+            const alertText = document.getElementById('alertText');
+            const alertDesc = document.getElementById('alertDescription');
+            
+            console.log('About to apply colors for gain:', gainFromBasis); // Debug
+            
+            // Apply colors based on gain
+            if (gainFromBasis < 0) {
+                console.log('Applying RED'); // Debug
+                alertDiv.style.setProperty('background', 'linear-gradient(135deg, #fee2e2, #fecaca)', 'important');
+                alertDiv.style.setProperty('border', '3px solid #ef4444', 'important');
+                alertText.style.setProperty('color', '#991b1b', 'important');
+                alertText.textContent = '⚠️ BELOW ADJUSTED BASIS';
+                alertDesc.textContent = 'Consider reviewing your position - you\'re below your true cost basis';
+            } else if (gainFromBasis >= 0 && gainFromBasis <= 10) {
+                console.log('Applying YELLOW'); // Debug
+                alertDiv.style.setProperty('background', 'linear-gradient(135deg, #fef3c7, #fde68a)', 'important');
+                alertDiv.style.setProperty('border', '3px solid #f59e0b', 'important');
+                alertText.style.setProperty('color', '#92400e', 'important');
+                alertText.textContent = '⚠️ CAUTION';
+                alertDesc.textContent = 'Your position is barely above your adjusted cost basis - monitor closely';
+            } else {
+                console.log('Applying GREEN'); // Debug
+                alertDiv.style.setProperty('background', 'linear-gradient(135deg, #d1fae5, #a7f3d0)', 'important');
+                alertDiv.style.setProperty('border', '3px solid #10b981', 'important');
+                alertText.style.setProperty('color', '#065f46', 'important');
+                alertText.textContent = '✅ ABOVE ADJUSTED BASIS';
+                alertDesc.textContent = 'Your position is performing well above your true cost basis';
+            }
+            
+            console.log('Color application completed'); // Debug
+        }
+        
+        // Auto-save to localStorage
+        function saveData() {
+            const data = {
+                shares: document.getElementById('shares').value,
+                invested: document.getElementById('invested').value,
+                dividends: document.getElementById('dividends').value,
+                currentPrice: document.getElementById('currentPrice').value
+            };
+            localStorage.setItem('mstyTracker', JSON.stringify(data));
+        }
+        
+        function loadData() {
+            const savedData = localStorage.getItem('mstyTracker');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                document.getElementById('shares').value = data.shares || 1000;
+                document.getElementById('invested').value = data.invested || 25000;
+                document.getElementById('dividends').value = data.dividends || 6000;
+                document.getElementById('currentPrice').value = data.currentPrice || 21.50;
+            }
+        }
+        
+        // Save data on input change and force initial calculation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            const inputs = ['shares', 'invested', 'dividends', 'currentPrice'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', function() {
+                    calculatePosition();
+                    saveData();
+                });
+            });
+            
+            // Force initial calculation after a short delay
+            setTimeout(() => {
+                calculatePosition();
+                console.log('Initial calculation completed');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
