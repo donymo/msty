@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Portfolio Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .calculator-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+            backdrop-filter: blur(20px);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .controls-section {
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .control-group:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .control-group h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stock-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .ulty-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .msty-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .settings-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .input-row label {
+            font-weight: 600;
+            color: #495057;
+            flex: 1;
+        }
+        
+        .input-row input {
+            width: 120px;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-row input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        
+        .withdrawal-control {
+            text-align: center;
+        }
+        
+        .withdrawal-slider {
+            width: 100%;
+            margin: 15px 0;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #28a745 0%, #ffc107 50%, #dc3545 100%);
+            outline: none;
+        }
+        
+        .withdrawal-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #4facfe;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .withdrawal-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #4facfe;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .withdrawal-display {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            display: block;
+            margin: 20px auto 0;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+        
+        .results-section {
+            padding: 30px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: transform 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-3px);
+            border-color: #4facfe;
+        }
+        
+        .summary-card h4 {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .summary-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .summary-card .growth {
+            font-size: 0.9em;
+            color: #28a745;
+            margin-top: 5px;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.3s ease;
+        }
+        
+        tr:hover td {
+            background-color: #f8f9fa;
+        }
+        
+        tr:nth-child(even) td {
+            background-color: #fdfdfe;
+        }
+        
+        .currency {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .shares {
+            color: #007bff;
+            font-weight: 600;
+        }
+        
+        .month-cell {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .total-row {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+            font-weight: bold;
+            color: #856404;
+        }
+        
+        .total-row:hover {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+        }
+        
+        .final-summary {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: #1565c0;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            table {
+                font-size: 0.7em;
+            }
+            
+            th, td {
+                padding: 8px 5px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="header">
+            <h1>📈 Portfolio Dividend Calculator</h1>
+            <p>Advanced Multi-Stock Dividend Reinvestment Analysis</p>
+        </div>
+        
+        <div class="controls-section">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <h3><span class="stock-icon ulty-icon">U</span>ULTY Position</h3>
+                    <div class="input-row">
+                        <label>Shares:</label>
+                        <input type="number" id="ultyShares" value="42089">
+                    </div>
+                    <div class="input-row">
+                        <label>Price per Share:</label>
+                        <input type="number" id="ultyPrice" value="6.10" step="0.01">
+                    </div>
+                    <div class="input-row">
+                        <label>Weekly Dividend:</label>
+                        <input type="number" id="ultyDividend" value="0.10" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3><span class="stock-icon msty-icon">M</span>MSTY Position</h3>
+                    <div class="input-row">
+                        <label>Shares:</label>
+                        <input type="number" id="mstyShares" value="10958">
+                    </div>
+                    <div class="input-row">
+                        <label>Price per Share:</label>
+                        <input type="number" id="mstyPrice" value="23.00" step="0.01">
+                    </div>
+                    <div class="input-row">
+                        <label>Monthly Dividend:</label>
+                        <input type="number" id="mstyDividend" value="1.50" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="control-group withdrawal-control">
+                    <h3><span class="stock-icon settings-icon">⚙</span>Withdrawal Strategy</h3>
+                    <div class="withdrawal-display">
+                        <span id="withdrawalDisplay">25</span>%
+                    </div>
+                    <input type="range" id="withdrawalSlider" class="withdrawal-slider" min="0" max="100" value="25">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: #6c757d; margin-top: 5px;">
+                        <span>0% (Full Reinvest)</span>
+                        <span>100% (Income Only)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculatePortfolio()">
+                🚀 Calculate Portfolio Projections
+            </button>
+        </div>
+        
+        <div class="results-section">
+            <div class="summary-cards" id="summaryCards">
+                <!-- Summary cards will be populated here -->
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>ULTY Shares</th>
+                            <th>MSTY Shares</th>
+                            <th>Total Dividends</th>
+                            <th>Total Income</th>
+                            <th>Withdrawn</th>
+                            <th>Reinvested</th>
+                            <th>ULTY Purchased</th>
+                            <th>MSTY Purchased</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="final-summary" id="finalSummary">
+                <!-- Final summary will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Save values to localStorage when inputs change
+        function saveValues() {
+            const values = {
+                ultyShares: document.getElementById('ultyShares').value,
+                ultyPrice: document.getElementById('ultyPrice').value,
+                ultyDividend: document.getElementById('ultyDividend').value,
+                mstyShares: document.getElementById('mstyShares').value,
+                mstyPrice: document.getElementById('mstyPrice').value,
+                mstyDividend: document.getElementById('mstyDividend').value,
+                withdrawalRate: document.getElementById('withdrawalSlider').value
+            };
+            
+            // Store in session for this browser session
+            Object.keys(values).forEach(key => {
+                sessionStorage.setItem(key, values[key]);
+            });
+        }
+        
+        // Load saved values when page loads
+        function loadSavedValues() {
+            const inputs = ['ultyShares', 'ultyPrice', 'ultyDividend', 'mstyShares', 'mstyPrice', 'mstyDividend', 'withdrawalSlider'];
+            
+            inputs.forEach(inputId => {
+                const savedValue = sessionStorage.getItem(inputId);
+                if (savedValue) {
+                    document.getElementById(inputId).value = savedValue;
+                }
+            });
+            
+            // Update withdrawal display
+            const withdrawalValue = document.getElementById('withdrawalSlider').value;
+            document.getElementById('withdrawalDisplay').textContent = withdrawalValue;
+        }
+
+        // Update withdrawal display when slider changes and save values
+        document.getElementById('withdrawalSlider').addEventListener('input', function() {
+            document.getElementById('withdrawalDisplay').textContent = this.value;
+            saveValues();
+        });
+        
+        // Add event listeners to save values when inputs change
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['ultyShares', 'ultyPrice', 'ultyDividend', 'mstyShares', 'mstyPrice', 'mstyDividend'];
+            
+            inputs.forEach(inputId => {
+                document.getElementById(inputId).addEventListener('change', saveValues);
+            });
+            
+            // Load saved values on page load
+            loadSavedValues();
+            
+            // Calculate initial portfolio
+            calculatePortfolio();
+        });
+
+        function calculatePortfolio() {
+            // Get input values
+            const ultyShares = parseInt(document.getElementById('ultyShares').value);
+            const ultyPrice = parseFloat(document.getElementById('ultyPrice').value);
+            const ultyWeeklyDividend = parseFloat(document.getElementById('ultyDividend').value);
+            
+            const mstyShares = parseInt(document.getElementById('mstyShares').value);
+            const mstyPrice = parseFloat(document.getElementById('mstyPrice').value);
+            const mstyMonthlyDividend = parseFloat(document.getElementById('mstyDividend').value);
+            
+            const withdrawalRate = parseFloat(document.getElementById('withdrawalSlider').value) / 100;
+            const reinvestmentRate = 1 - withdrawalRate;
+            
+            // Initialize tracking variables
+            let currentUltyShares = ultyShares;
+            let currentMstyShares = mstyShares;
+            
+            let totalUltyDividends = 0;
+            let totalMstyDividends = 0;
+            let totalWithdrawals = 0;
+            let totalUltyPurchased = 0;
+            let totalMstyPurchased = 0;
+            
+            const results = [];
+            
+            // Calculate for 18 months
+            for (let month = 1; month <= 18; month++) {
+                // Calculate monthly dividends
+                const ultyMonthlyDividends = Math.round(currentUltyShares * ultyWeeklyDividend * 4.33);
+                const mstyMonthlyDividends = Math.round(currentMstyShares * mstyMonthlyDividend);
+                const totalDividends = ultyMonthlyDividends + mstyMonthlyDividends;
+                
+                // Calculate withdrawal and reinvestment based on total dividends only
+                const withdrawal = Math.round(totalDividends * withdrawalRate);
+                const reinvestment = Math.round(totalDividends * reinvestmentRate);
+                
+                // Total Income = Withdrawn amount + $12,400
+                const totalIncome = withdrawal + 12400;
+                
+                // Calculate shares to purchase (70% ULTY, 30% MSTY)
+                const ultyInvestment = reinvestment * 0.70;
+                const mstyInvestment = reinvestment * 0.30;
+                
+                const ultySharesPurchased = Math.floor(ultyInvestment / ultyPrice);
+                const mstySharesPurchased = Math.floor(mstyInvestment / mstyPrice);
+                
+                // Update share counts
+                currentUltyShares += ultySharesPurchased;
+                currentMstyShares += mstySharesPurchased;
+                
+                // Update totals
+                totalUltyDividends += ultyMonthlyDividends;
+                totalMstyDividends += mstyMonthlyDividends;
+                totalWithdrawals += withdrawal;
+                totalUltyPurchased += ultySharesPurchased;
+                totalMstyPurchased += mstySharesPurchased;
+                
+                // Store results
+                results.push({
+                    month: month,
+                    ultyShares: currentUltyShares,
+                    mstyShares: currentMstyShares,
+                    totalDividends: totalDividends,
+                    totalIncome: totalIncome,
+                    withdrawal: withdrawal,
+                    reinvestment: reinvestment,
+                    ultyPurchased: ultySharesPurchased,
+                    mstyPurchased: mstySharesPurchased
+                });
+            }
+            
+            // Calculate portfolio values
+            const initialValue = (ultyShares * ultyPrice) + (mstyShares * mstyPrice);
+            const finalValue = (currentUltyShares * ultyPrice) + (currentMstyShares * mstyPrice);
+            const totalGrowth = finalValue - initialValue;
+            const growthPercentage = ((totalGrowth / initialValue) * 100).toFixed(1);
+            
+            // Update summary cards
+            updateSummaryCards(initialValue, finalValue, totalGrowth, growthPercentage, totalWithdrawals, currentUltyShares, currentMstyShares);
+            
+            // Update results table
+            updateResultsTable(results, totalUltyDividends, totalMstyDividends, totalWithdrawals, totalUltyPurchased, totalMstyPurchased, currentUltyShares, currentMstyShares);
+            
+            // Update final summary
+            updateFinalSummary(initialValue, finalValue, totalGrowth, growthPercentage, totalWithdrawals, currentUltyShares, currentMstyShares, ultyWeeklyDividend, mstyMonthlyDividend);
+        }
+        
+        function updateSummaryCards(initialValue, finalValue, totalGrowth, growthPercentage, totalWithdrawals, finalUltyShares, finalMstyShares) {
+            const summaryCards = document.getElementById('summaryCards');
+            summaryCards.innerHTML = `
+                <div class="summary-card">
+                    <h4>Initial Portfolio</h4>
+                    <div class="value">${Math.round(initialValue).toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <h4>Final Portfolio</h4>
+                    <div class="value">${Math.round(finalValue).toLocaleString()}</div>
+                    <div class="growth">+${growthPercentage}%</div>
+                </div>
+                <div class="summary-card">
+                    <h4>Total Growth</h4>
+                    <div class="value">${Math.round(totalGrowth).toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <h4>Total Withdrawn</h4>
+                    <div class="value">${Math.round(totalWithdrawals).toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <h4>Final ULTY Shares</h4>
+                    <div class="value">${finalUltyShares.toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <h4>Final MSTY Shares</h4>
+                    <div class="value">${finalMstyShares.toLocaleString()}</div>
+                </div>
+            `;
+        }
+        
+        function updateResultsTable(results, totalUltyDividends, totalMstyDividends, totalWithdrawals, totalUltyPurchased, totalMstyPurchased, finalUltyShares, finalMstyShares) {
+            const tableBody = document.getElementById('resultsTableBody');
+            let html = '';
+            
+            const monthNames = ['Aug 2025', 'Sep 2025', 'Oct 2025', 'Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026', 'Oct 2026', 'Nov 2026', 'Dec 2026', 'Jan 2027'];
+            
+            const totalFixedIncome = 18 * 12400; // 18 months * $12,400
+            const totalAllIncome = totalUltyDividends + totalMstyDividends + totalFixedIncome;
+            
+            results.forEach((result, index) => {
+                html += `
+                    <tr>
+                        <td class="month-cell">${monthNames[index]}</td>
+                        <td class="shares">${result.ultyShares.toLocaleString()}</td>
+                        <td class="shares">${result.mstyShares.toLocaleString()}</td>
+                        <td class="currency">${result.totalDividends.toLocaleString()}</td>
+                        <td class="currency">${result.totalIncome.toLocaleString()}</td>
+                        <td class="currency">${result.withdrawal.toLocaleString()}</td>
+                        <td class="currency">${result.reinvestment.toLocaleString()}</td>
+                        <td class="shares">+${result.ultyPurchased.toLocaleString()}</td>
+                        <td class="shares">+${result.mstyPurchased.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+            
+            // Add totals row
+            html += `
+                <tr class="total-row">
+                    <td><strong>TOTALS</strong></td>
+                    <td class="shares"><strong>${finalUltyShares.toLocaleString()}</strong></td>
+                    <td class="shares"><strong>${finalMstyShares.toLocaleString()}</strong></td>
+                    <td class="currency"><strong>${(totalUltyDividends + totalMstyDividends).toLocaleString()}</strong></td>
+                    <td class="currency"><strong>${totalAllIncome.toLocaleString()}</strong></td>
+                    <td class="currency"><strong>${totalWithdrawals.toLocaleString()}</strong></td>
+                    <td class="currency"><strong>${(totalAllIncome - totalWithdrawals).toLocaleString()}</strong></td>
+                    <td class="shares"><strong>+${totalUltyPurchased.toLocaleString()}</strong></td>
+                    <td class="shares"><strong>+${totalMstyPurchased.toLocaleString()}</strong></td>
+                </tr>
+            `;
+            
+            tableBody.innerHTML = html;
+        }
+        
+        function updateFinalSummary(initialValue, finalValue, totalGrowth, growthPercentage, totalWithdrawals, finalUltyShares, finalMstyShares, ultyWeeklyDividend, mstyMonthlyDividend) {
+            const finalMonthlyIncome = Math.round((finalUltyShares * ultyWeeklyDividend * 4.33) + (finalMstyShares * mstyMonthlyDividend));
+            
+            document.getElementById('finalSummary').innerHTML = `
+                <strong>📊 Portfolio Analysis Summary:</strong><br><br>
+                <strong>Financial Growth:</strong> Portfolio value increased from ${Math.round(initialValue).toLocaleString()} to ${Math.round(finalValue).toLocaleString()} (${growthPercentage}% growth)<br>
+                <strong>Income Generated:</strong> Total of ${Math.round(totalWithdrawals).toLocaleString()} withdrawn over 18 months<br>
+                <strong>Final Monthly Income:</strong> ${finalMonthlyIncome.toLocaleString()} per month in dividends<br>
+                <strong>Share Growth:</strong> ULTY grew to ${finalUltyShares.toLocaleString()} shares, MSTY grew to ${finalMstyShares.toLocaleString()} shares
+            `;
+        }
+        
+        // Calculate initial portfolio on page load is now handled in DOMContentLoaded
+    </script>
+</body>
+</html>
